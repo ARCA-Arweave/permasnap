@@ -20,8 +20,7 @@ export const useTxNotifier = (jwk: JWKInterface) => {
 			const mined = await getAllTxsByPubKey(jwk.n)
 			
 			setMinedTxs(mined)
-			console.log('uploadedTxs: ')
-			console.log(mined)
+			console.log('uploadedTxs: ', mined)
 			console.log('fetched data @'+ (new Date()))
 		}
 		getMined()
@@ -49,16 +48,13 @@ export const useTxNotifier = (jwk: JWKInterface) => {
 				}
 			})
 		})
-		console.log('found:')
-		console.log(found)
+		console.log('found:', found)
 		//remove found pics
 		queue = queue.filter(pic => pic.id !== found.find(id => id === pic.id ))
 
 
-		console.log('queue after:')
-		console.log(queue)
-		console.log('queue.concat(minedTxs):')
-		console.log(queue.concat(minedTxs))
+		console.log('queue after:', queue)
+		console.log('queue.concat(minedTxs):',queue.concat(minedTxs))
 
 		console.log('setTxData triggered')
 		setTxDatas(queue.concat(minedTxs))
