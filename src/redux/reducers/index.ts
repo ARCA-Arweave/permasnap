@@ -34,7 +34,7 @@ const rootReducer = combineReducers({
 	currentPhoto: currentPhotoReducer,
 	txList: txListReducer,
 	imageCache: imageCacheReducer,
-	timestampCache: timestampsCacheReducer,
+	timestampsCache: timestampsCacheReducer,
 	arwewaveIdCache: arweaveIdCacheReducer,
 })
 

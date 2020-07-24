@@ -18,7 +18,8 @@ export interface IPsnapPhoto {
 
 export interface ICachedImage {
 	txid: string
-	fileUri: string // mobile: file:// or web data://
+  imgSrc: string // mobile: http://localhost/ or web data://
+  uri: string // mobile: file:// or web data://
 	description: string
 	hashtags: string[]
 	user?: ArweaveId
@@ -29,10 +30,6 @@ export interface CachedImagesObject {
   [txid:string]: ICachedImage
 }
 
-export interface Timestamp {
-  blockHeight: number
-  timestamp: number
-}
 export interface TimestampsCache {
   [blockHeight:number]: number
 }

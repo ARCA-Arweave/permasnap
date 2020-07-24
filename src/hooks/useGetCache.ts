@@ -1,23 +1,17 @@
 import { ArweaveId } from "arweave-id"
 import { useSelector, useDispatch } from "react-redux"
 import { IStoreState, ICachedImage } from '../redux/reducers'
-import { saveTimestamp, updateImage } from '../redux/actions'
+import { saveTimestamp, createImage, updateImageTime, updateImageURI } from '../redux/actions'
 import axios from "axios"
 import { isPlatform } from "@ionic/react"
-import { Plugins, FilesystemDirectory, FilesystemEncoding, Capacitor } from '@capacitor/core'
+import { Plugins, FilesystemDirectory, Capacitor } from '@capacitor/core'
+import { useEffect } from "react"
+import { timeStamp } from "console"
+import { checkFileExists } from "../providers/FilesystemProvider"
 
 const placeholder = require('../assets/img/placeholder.svg')
 const HOST = process.env.REACT_APP_ARWEAVE_GW_HOST
 
-// export interface ICachedImage {
-// 	txid: string
-// 	fileUri: string // mobile: file:// or web data://
-// 	description: string
-// 	hashtags: string[]
-// 	user?: ArweaveId
-// 	timestamp?: number
-// 	// last_accessed: number
-// }
 
 /**
  * React hook to return cached data from the store. If data is not present it will fetch 
@@ -30,98 +24,104 @@ const useGetCache = () => {
 	const arweaveIdCache = useSelector((state:IStoreState) => state.arweaveIdCache)
 	const dispatch = useDispatch() 
 
-	// const getTimestamp = async (blockHeight: number): Promise<void> => {
-	// 	//prevent further network calls for same block
-	// 	dispatch(saveTimestamp({blockHeight, timestamp: 0}))
+	const getBlockTime = async (blockHeight: number): Promise<number> => {
+		//prevent further network calls for same block
+		dispatch(saveTimestamp(blockHeight, 0))
 
-	// 	//we really want to avoid this next line which downloads a whole block
-	// 	let block = await axios(`https://arweave.net/block/height/${blockHeight}`)
-	// 	let timestamp = block.data.timestamp
+		//we really want to avoid this next line which downloads a whole block
+		let block = await axios(`https://${HOST}/block/height/${blockHeight}`)
+		let timestamp = block.data.timestamp
+		console.log(`block:${blockHeight}, timestamp:${timestamp}`)
 
-	// 	dispatch(saveTimestamp({blockHeight,timestamp}))
-	// }
+		dispatch(saveTimestamp(blockHeight, timestamp))
+		return timestamp
+	}
+
+
 	/* Download the file and save to device cache */
-	const getData = async (img: ICachedImage): Promise<void> => {
-		let data = await axios.get(`https://${HOST}/${img.txid}`,{responseType: 'arraybuffer'})
-		let contentType:string = data.headers["content-type"]
+	const getImageFile = async (txid: string): Promise<void> => {
+		// insert a placeholder while waiting for download 
+		dispatch(updateImageURI(txid, 'placeholder', placeholder))
+
+		let data = await axios.get(`https://${HOST}/${txid}`, {responseType: 'arraybuffer'})
 		let b64File = new Buffer(data.data,'binary').toString('base64')
+		let contentType:string = data.headers["content-type"]
 		let ext = contentType.split('/')[1]
 		console.log('Content-Type', contentType)
 		console.log('file extension', ext)
-		console.log('base64 file', b64File)
 
-		let fileUri: string
+		const res = await Filesystem.writeFile({
+			data: b64File,
+			path: txid + '.' + ext,
+			directory: FilesystemDirectory.Cache,
+		})
+		let imgSrc: string
 		if(isPlatform('hybrid')){
-			const res = await Filesystem.writeFile({
-				data: b64File,
-				path: img.txid + '.' + ext,
-				directory: FilesystemDirectory.Cache,
-			})
-			fileUri = Capacitor.convertFileSrc(res.uri) // file: -> http://localhost/
+			imgSrc = Capacitor.convertFileSrc(res.uri) // file: -> http://localhost/
 		}else{
-			fileUri = `data:${contentType};base64,${b64File}`
+			imgSrc = `data:${contentType};base64,${b64File}` //web, for development only
 		}
-		img.fileUri = fileUri
-		dispatch(updateImage({
-			...img,
-			fileUri
-		}))
 
-		console.log(img)
-
+		dispatch(updateImageURI(txid, res.uri, imgSrc))
+		console.log('updated image', txid)
 	}
 
-	/* The idea here is to create many async calls to dispatch to update data */
-	const getImage = (
+	/* The idea here is to create many async calls to dispatch to update the image's data */
+	const updateImageCache = async (
 			txid: string,
 			description: string,
 			hashtags: string[],
 			user?: ArweaveId,
 	) => {
-		
-		/* If it's already cached, return */
-		//!! THIS SHOULD BE IN THE CALLING COMPONENT ??
+
+		// create a placeholder for initial dispatch
+		let image: ICachedImage = {
+			txid,
+			imgSrc: placeholder,
+			uri: 'placeholder',
+			description,
+			hashtags,
+		}
+
+
+		/* If it's already cached, return. Check file was not purged also */
 		if(imageCache[txid] !== undefined){
-			return //imageCache[txid]
+			if(await checkFileExists(imageCache[txid].uri)){
+				return //nothing to do
+			}
+			getImageFile(txid) //this re-downloads the file
+			return 
 		}
 
 		/* Else fetch image details */
 
-		// create a placeholder for initial dispatch ("return")
-		let image: ICachedImage = {
-			txid,
-			fileUri: placeholder,
-			description,
-			hashtags
-		}
 		//prevent further calls for same image & insert placeholder by dispatching immediately
-		dispatch(updateImage(image))
+		dispatch(createImage(image))
 
+		getImageFile(txid) // download and insert the image
 
-		getData(image)
+		// get timestamp
+		axios.get(`https://${HOST}/tx/${txid}/status`)
+		.then((status) => {
+			let blockHeight = status.data.block_height
+			console.log('block_height', blockHeight)
 
-
-		// axios.get(`https://${HOST}/tx/${txid}/status`)
-		// .then((status) => {
-
-		// 	let blockHeight = status.data.block_height
-		// 	console.log('block_height', blockHeight)
-			
-		// 	/* get timestamp */
-		// 	let timestamp: number
-		// 	if(timestampsCache[blockHeight]!==undefined){
-		// 		timestamp = timestampsCache[blockHeight]
-		// 	}else {
-		// 		getTimestamp(blockHeight)
-		// 	}
-		// })//then get status
+			let ts = timestampsCache[blockHeight]
+			if(ts!==undefined){
+				dispatch(updateImageTime(txid, timestampsCache[blockHeight]))
+			}else if(ts !== 0) {
+				getBlockTime(blockHeight).then(timeStamp=>{
+					dispatch(updateImageTime(txid,timeStamp))
+				})
+			}
+		})//get timestamp
 			
 
 
 	}
 
 	return {
-		getImage,
+		updateImageCache,
 		imageCache,
 		timestampsCache,
 		arweaveIdCache,

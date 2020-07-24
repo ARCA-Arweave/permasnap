@@ -42,4 +42,21 @@
 // 			.catch(console.log)
 // 	}
 // }
-export {}
+import { Plugins } from '@capacitor/core'
+const { Filesystem } = Plugins
+
+export const checkFileExists = async (uri: string): Promise<boolean> => {
+	try{
+		const res =  await Filesystem.stat({
+			path: uri,
+		})
+		console.log(`File ${uri} found`)
+		// console.log(res)
+		return true
+	
+	}	catch(err){
+		console.log(`File ${uri} not found`)
+		// console.log(err)
+		return false
+	}
+}

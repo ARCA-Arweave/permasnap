@@ -1,5 +1,4 @@
 import { ActionTypes } from './actionTypes'
-import { Timestamp } from '../reducers/reducerTypes'
 import { ArweaveId } from 'arweave-id'
 
 

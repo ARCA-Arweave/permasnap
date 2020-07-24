@@ -1,5 +1,5 @@
 import { Action, ActionTypes } from '../actions'
-import { TimestampsCache, ArweaveIdCache } from './reducerTypes'
+import { ArweaveIdCache } from './reducerTypes'
 
 export const arweaveIdCacheReducer = (
 	state: ArweaveIdCache = {},
