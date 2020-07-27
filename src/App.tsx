@@ -27,6 +27,7 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
+import TestGetCache from './pages/TestGetCache';
 
 //app constants (need to be here to be printed in Capacitor)
 console.log('process.env.NODE_ENV='+process.env.NODE_ENV)
@@ -65,6 +66,7 @@ const App: React.FC = () => {
     <IonApp>
       <IonReactRouter>
           <IonRouterOutlet >
+            <Route path="/test/:txid" component={TestGetCache} exact={true} />
             <Route path="/usertab" component={UserTab} exact={true} />
             <Route path="/infotab" component={InfoTab} exact={true} />
             <Route path="/searchtab/:search?" component={SearchTab} exact={true} />

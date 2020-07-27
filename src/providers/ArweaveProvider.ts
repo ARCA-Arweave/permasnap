@@ -45,13 +45,14 @@ export const getTxStatus = async (txid:string):Promise<TransactionStatusResponse
 	return await arweave.transactions.getStatus(txid) //returns {status,confirmed}
 }
 
-export const getTxTime = async (txid: string) => {
-	let status = await axios(`https://${HOST}/tx/${txid}/status`)
-	let height = status.data.block_height
-	let block = await axios(`https://${HOST}/block/height/${height}`)
+// // getTxTime is slooooow! do not use this!
+// export const getTxTime = async (txid: string) => {
+// 	let status = await axios(`https://${HOST}/tx/${txid}/status`)
+// 	let height = status.data.block_height
+// 	let block = await axios(`https://${HOST}/block/height/${height}`)
 
-	return block.data.timestamp
-}
+// 	return block.data.timestamp
+// }
 
 export const getAllTxsDefault = async ():Promise<IPsnapPhoto[]> => {
 	return getAllTxsByTag("psnap_context", "production")

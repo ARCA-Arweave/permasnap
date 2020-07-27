@@ -1,7 +1,10 @@
 import { Action, ActionTypes } from '../actions';
 import { IPsnapPhoto } from './reducerTypes';
 
-export const txListReducer = (state: IPsnapPhoto[] = [], action: Action) => {
+export const txListReducer = (
+  state: IPsnapPhoto[] = [], 
+  action: Action
+): IPsnapPhoto[] => {
   switch (action.type) {
     case ActionTypes.ADD_TXITEM:
       return [...state, action.payload]
