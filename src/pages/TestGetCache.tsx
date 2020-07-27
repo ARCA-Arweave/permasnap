@@ -1,14 +1,9 @@
 import React, { useEffect } from 'react'
 import useGetCache from '../hooks/useGetCache'
-import { useParams } from 'react-router'
-import { FilesystemDirectory, Plugins } from '@capacitor/core'
-import { isPlatform } from '@ionic/react'
 
 const TestGetCache:React.FC = () => {
 	const { updateImageCache, arweaveIdCache, imageCache } = useGetCache()
-	// const {txid} = useParams() 
 	const txid = 'XVmKczg5snUI5zcp3xzN6T3XFQyyccmL9RlV7w8p_QY'
-	const { Filesystem } = Plugins
 	
 	useEffect(() => {
 

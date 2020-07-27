@@ -66,7 +66,11 @@ const useGetCache = () => {
 		console.log('updated image', txid)
 	}
 
-	/* The idea here is to create many async calls to dispatch to update the image's data */
+	/**
+	 * The idea here is to create several async calls to dispatch updates to the image's 
+	 * data. We want to return ASAP and give feedback. Minimizing & caching expensive 
+	 * network transfers wherever possible.
+	 */
 	const updateImageCache = async (
 			txid: string,
 			description: string,
@@ -83,8 +87,8 @@ const useGetCache = () => {
 			hashtags,
 		}
 
-
 		/* If it's already cached, return. Check file was not purged also */
+
 		if(imageCache[txid] !== undefined){
 			if(await checkFileExists(imageCache[txid].uri)){
 				return //nothing to do
@@ -100,7 +104,7 @@ const useGetCache = () => {
 
 		getImageFile(txid) // download and insert the image
 
-		// get timestamp
+		// get timestamp 
 		axios.get(`https://${HOST}/tx/${txid}/status`)
 		.then((status) => {
 			let blockHeight = status.data.block_height
@@ -115,7 +119,9 @@ const useGetCache = () => {
 				})
 			}
 		})//get timestamp
-			
+
+		// get user 
+		
 
 
 	}
@@ -123,7 +129,6 @@ const useGetCache = () => {
 	return {
 		updateImageCache,
 		imageCache,
-		timestampsCache,
 		arweaveIdCache,
 	}
 }
