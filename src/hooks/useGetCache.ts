@@ -52,6 +52,7 @@ const useGetCache = () => {
 			path: txid + '.' + ext,
 			directory: FilesystemDirectory.Cache,
 		})
+		console.log('Cached to '+res.uri)
 		let imgSrc: string
 		if(isPlatform('hybrid')){
 			imgSrc = Capacitor.convertFileSrc(res.uri) // file: -> http://localhost/
