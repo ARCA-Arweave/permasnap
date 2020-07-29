@@ -4,6 +4,7 @@ import * as CSS from 'csstype'
 import './SearchTab.css';
 import PictureCard from '../components/PictureCard';
 import { useSearch } from '../hooks/useSearch';
+import PictureCardConfirmed from '../components/PictureCardConfirmed';
 
 
 
@@ -24,7 +25,7 @@ const SearchTab: React.FC = ({match}:any) => {
 					</IonRow>
 					<IonRow>
 							{ (txData.length > 0) ? txData.map(data => (
-								<PictureCard key={data.id} data={data} />
+								<PictureCardConfirmed key={data.id} data={data} />
 							)) : <IonLabel>No pictures found.</IonLabel>}
 					</IonRow>
 				</IonGrid>

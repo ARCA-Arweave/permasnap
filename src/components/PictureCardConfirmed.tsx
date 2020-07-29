@@ -23,9 +23,10 @@ interface IProps {
 
 
 
-const PictureCard = ({data}:IProps) => {
+const PictureCardConfirmed = ({data}:IProps) => {
 	const [arweaveId, setArweaveId] = useState<IArIdData>()
 	const { updateImageCache, imageCache } = useGetCache()
+	const [datetime, setDatetime] = useState<string>()
 
 	useEffect(() => {
 		/* get arweave-id (will be updated/removed later) */
@@ -42,10 +43,17 @@ const PictureCard = ({data}:IProps) => {
 		if(data.completed){//if it's mined
 			updateImageCache(data.id!, data.description ||'', data.hashtags)
 		}
-		
-
 	}, [data])
 
+	useEffect(() => {
+		let cached = imageCache[data.id!]
+		if(cached){
+			data.imgSrc = cached.imgSrc
+			if(cached.timestamp)
+				setDatetime((new Date(cached.timestamp*1000)).toLocaleString()) 
+			//user = cached.user to be updated
+		}
+	}, [imageCache[data.id!]]) 
 
 	return (
 		<IonCol sizeXs="12" sizeSm="6" sizeMd="4" sizeLg="3" >
@@ -59,8 +67,11 @@ const PictureCard = ({data}:IProps) => {
 					<span  style={nameStyle} >{arweaveId.name}</span>
 				</Link>
 			</>)}
+			
+			<span style={timeStyle}>{datetime}</span>
 
 			<div style={containerStyle}>
+
 				{ data.hashtags.length>0 && data.hashtags.map(tag=> 
 					<Hashtag key={data.id+tag} term={tag} style={hashtagsStyle} />
 				)}					
@@ -68,13 +79,15 @@ const PictureCard = ({data}:IProps) => {
 				{ data.description && (<>
 					<IonText style={captionStyle} >{data.description}</IonText><br /><br />
 				</>)}
+				
 			</div>
+
 		</IonCard>
-		</IonCol>
+	</IonCol>
 	)
 }
 
-export default PictureCard
+export default PictureCardConfirmed
 
 //#region styles
 const cardStyle: CSS.Properties = {
@@ -91,6 +104,15 @@ const nameStyle: CSS.Properties = {
   position: 'absolute',
   top: '10px',
   left: '10px',
+	padding: '10px',
+  backgroundColor: 'rgba(128, 128, 128, 0.5)',
+	color: 'white',
+	borderRadius: '10px', 
+}
+const timeStyle: CSS.Properties = {
+  position: 'absolute',
+  top: '10px',
+  right: '10px',
 	padding: '10px',
   backgroundColor: 'rgba(128, 128, 128, 0.5)',
 	color: 'white',

@@ -113,10 +113,9 @@ const getAllTxsByTag = async (name: string, value: string):Promise<IPsnapPhoto[]
 					break;
 			}
 		})
-		//return a ITxData object
+		
 		return {
 			id: tx.id,
-			url: 'https://' + HOST + '/' + tx.id,
 			description: description,
 			completed: true,
 			hashtags: hashtags,
@@ -144,7 +143,6 @@ export const getArweaveId = async (pubkey: string):Promise<IArIdData> => {
 		name,
 		address
 	}
-
 }
 
 

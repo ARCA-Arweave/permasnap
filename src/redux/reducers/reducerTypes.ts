@@ -6,7 +6,7 @@ import { ArweaveId } from "arweave-id"
 
 export interface IPsnapPhoto {
   id?: string //txid
-  url?: string //permaweb url
+  imgSrc?: string //permaweb url
   dataUri?: string //full pic data here
   completed: boolean
   status?: string //debug

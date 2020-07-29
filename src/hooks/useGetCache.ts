@@ -5,8 +5,6 @@ import { saveTimestamp, createImage, updateImageTime, updateImageURI } from '../
 import axios from "axios"
 import { isPlatform } from "@ionic/react"
 import { Plugins, FilesystemDirectory, Capacitor } from '@capacitor/core'
-import { useEffect } from "react"
-import { timeStamp } from "console"
 import { checkFileExists } from "../providers/FilesystemProvider"
 
 const placeholder = require('../assets/img/placeholder.svg')
@@ -36,7 +34,6 @@ const useGetCache = () => {
 		dispatch(saveTimestamp(blockHeight, timestamp))
 		return timestamp
 	}
-
 
 	/* Download the file and save to device cache */
 	const getImageFile = async (txid: string): Promise<void> => {
