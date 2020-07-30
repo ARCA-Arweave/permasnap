@@ -79,12 +79,14 @@ const TestOnly:React.FC = () => {
           <IonLabel>Wallet Address</IonLabel>
           {arAddress ? arAddress : 'Wallet not loaded'}
         </IonItem>
-        <IonItem >LOAD Wallet :&nbsp; 
+        <IonItem>
+					<IonLabel>LOAD Wallet :</IonLabel>
           <input type='file' onChange={loadWallet}/>
         </IonItem>
-				<IonItem>SAVE Wallet :&nbsp;
+				<IonItem>
+					<IonLabel>SAVE Wallet : </IonLabel>
 					{ isPlatform('hybrid') 
-						? <IonButton onClick={saveWallet}>Button text</IonButton>
+						? <IonButton onClick={saveWallet} >Save to Filesystem</IonButton>
 						: <a 
 								href={'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(fixedWallet()))} 
 								download={arAddress+'.json'} 
